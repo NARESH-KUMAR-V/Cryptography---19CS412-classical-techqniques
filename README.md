@@ -292,60 +292,82 @@ The cipher can, be adapted to an alphabet with any number of letters. All arithm
 
 
 ## PROGRAM:
-PROGRAM:
-#include <stdio.h> #include <string.h>
-int keymat[3][3] = { { 1, 2, 1 }, { 2, 3, 2 }, { 2, 2, 1 } };
-int invkeymat[3][3] = { { -1, 0, 1 }, { 2, -1, 0 }, { -2, 2, -1 } }; char key[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-char encode(char a, char b, char c) { char ret[4];
-int x, y, z;
-int posa = (int) a - 65; int posb = (int) b - 65; int posc = (int) c - 65;
-x = posa * keymat[0][0] + posb * keymat[1][0] + posc * keymat[2][0];
-y = posa * keymat[0][1] + posb * keymat[1][1] + posc * keymat[2][1];
-z = posa * keymat[0][2] + posb * keymat[1][2] + posc * keymat[2][2]; ret[0] = key[x % 26];
-ret[1] = key[y % 26]; ret[2] = key[z % 26]; ret[3] = '\0';
-return ret;
-}
-char decode(char a, char b, char c) { char ret[4];
-int x, y, z;
-int posa = (int) a - 65; int posb = (int) b - 65; int posc = (int) c - 65;
- 
-x = posa * invkeymat[0][0] + posb * invkeymat[1][0] + posc * invkeymat[2][0];y = posa * invkeymat[0][1] + posb * invkeymat[1][1] + posc * invkeymat[2][1];z = posa
-* invkeymat[0][2] + posb * invkeymat[1][2] + posc * invkeymat[2][2];ret[0] = key[(x % 26 < 0) ? (26 + x % 26) : (x % 26)];
-ret[1] = key[(y % 26 < 0) ? (26 + y % 26) : (y % 26)];
-ret[2] = key[(z % 26 < 0) ? (26 + z % 26) : (z % 26)];
-ret[3] = '\0'; return ret;
-}
-int main() { char msg[1000];
-char enc[1000] = ""; char dec[1000] = ""; int n;
-strcpy(msg, "SecurityLaboratory"); printf("Simulation of Hill Cipher\n"); printf("Input message : %s\n", msg); for (int i = 0; i < strlen(msg); i++) { msg[i] = toupper(msg[i]);
-}
-// Remove spaces
-n = strlen(msg) % 3;
-// Append padding text X if (n != 0) {
-for (int i = 1; i <= (3 - n); i++) {
-strcat(msg, "X");
-}
-}
-printf("Padded message : %s\n", msg); for (int i = 0; i < strlen(msg); i += 3) { char a = msg[i];
-char b = msg[i + 1]; char c = msg[i + 2];
-strcat(enc, encode(a, b, c));
-}
-printf("Encoded message : %s\n", enc); for (int i = 0; i < strlen(enc); i += 3) { char a = enc[i];
-char b = enc[i + 1]; char c = enc[i + 2];
-strcat(dec, decode(a, b, c));
- 
-}
-printf("Decoded message : %s\n", dec); return 0;
+```
+#include <stdio.h>
+#include <string.h>
+
+#define MATRIX_SIZE 3
+
+// Function to print matrix
+void printMatrix(unsigned int matrix[MATRIX_SIZE][MATRIX_SIZE]) {
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
 }
 
+// Function to multiply matrix and vector
+void multiplyMatrixVector(unsigned int matrix[MATRIX_SIZE][MATRIX_SIZE], unsigned int vector[MATRIX_SIZE], unsigned int result[MATRIX_SIZE]) {
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        unsigned int sum = 0;
+        for (int j = 0; j < MATRIX_SIZE; j++) {
+            sum += matrix[i][j] * vector[j];
+        }
+        result[i] = sum % 26;
+    }
+}
 
+int main() {
+    unsigned int a[MATRIX_SIZE][MATRIX_SIZE] = {{6, 24, 1}, {13, 16, 10}, {20, 17, 15}};
+    unsigned int b[MATRIX_SIZE][MATRIX_SIZE] = {{8, 5, 10}, {21, 8, 21}, {21, 12, 8}};
+    
+    unsigned int c[MATRIX_SIZE], d[MATRIX_SIZE];
+    char msg[20];
+    
+    printf("Enter plain text (up to 3 characters): ");
+    scanf("%s", msg);
+    
+    // Ensure message length is 3 or less
+    int msgLen = strlen(msg);
+    if (msgLen > MATRIX_SIZE) {
+        printf("Message too long. Limiting to %d characters.\n", MATRIX_SIZE);
+        msgLen = MATRIX_SIZE;
+    }
+    
+    // Convert message to numeric values
+    for (int i = 0; i < msgLen; i++) {
+        c[i] = msg[i] - 65;
+        printf("%d ", c[i]);
+    }
+    printf("\n");
+    
+    // Encrypt
+    multiplyMatrixVector(a, c, d);
+    
+    printf("Encrypted Cipher Text: ");
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        printf("%c ", d[i] + 65);
+    }
+    printf("\n");
+    
+    // Decrypt
+    multiplyMatrixVector(b, d, c);
+    
+    printf("Decrypted Cipher Text: ");
+    for (int i = 0; i < MATRIX_SIZE; i++) {
+        printf("%c ", c[i] + 65);
+    }
+    printf("\n");
+    
+    return 0;
+}
+```
 ## OUTPUT:
-OUTPUT:
-Simulating Hill Cipher
+![Screenshot 2024-10-07 105652](https://github.com/user-attachments/assets/b9f94594-df13-4d02-97ce-5ee9cf783bbd)
 
 
-Input Message : SecurityLaboratory
-Padded Message : SECURITYLABORATORY Encrypted Message : EACSDKLCAEFQDUKSXU Decrypted Message : SECURITYLABORATORY
 ## RESULT:
 The program is executed successfully
 
